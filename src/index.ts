@@ -56,7 +56,30 @@ try {
   };
 
   // --- Middlewares ---
-  app.use(cors({ origin: true }));
+  // 1. Defina sua lista de origens permitidas (whitelist)
+  const whitelist = [
+    'http://localhost:3000', // Frontend em desenvolvimento
+    'http://localhost:8080', // Outra porta local, se necessário
+    'https://gabrielluis21.github.io/intelliresume' // URL do seu GitHub Pages (substitua pelo nome correto do repositório se for diferente)
+  ];
+
+  // 2. Crie as opções do CORS com uma função de validação
+  const corsOptions = {
+    origin: (origin: any, callback: any) => {
+      // Se a origem da requisição estiver na sua whitelist OU
+      // se a requisição não tiver uma origem (como apps mobile ou Postman),
+      // então permita a requisição.
+      if (whitelist.indexOf(origin) !== -1 || !origin) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    optionsSuccessStatus: 200
+  };
+
+  // 3. Use o middleware com as novas opções
+  app.use(cors(corsOptions));
   app.use(express.json());
   app.use(session({
     secret: process.env.SESSION_SECRET || 'secret',
