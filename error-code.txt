@@ -1,0 +1,10 @@
+No overload matches this call.
+  The last overload gave the following error.
+    Argument of type '(req: AuthenticatedRequest, res: Response, next: NextFunction) => Promise<express.Response<any, Record<string, any>> | undefined>' is not assignable to parameter of type 'RequestHandlerParams<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+      Type '(req: AuthenticatedRequest, res: Response, next: NextFunction) => Promise<express.Response<any, Record<string, any>> | undefined>' is not assignable to type 'RequestHandler<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+        Types of parameters 'req' and 'req' are incompatible.
+          Type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>' is not assignable to type 'AuthenticatedRequest'.
+            Types of property 'user' are incompatible.
+              Type 'User | undefined' is not assignable to type 'DecodedIdToken | undefined'.
+                Type 'User' is missing the following properties from type 'DecodedIdToken': aud, auth_time, exp, firebase, and 4 more.ts(2769)
+index.d.ts(157, 5): The last overload is declared here.
