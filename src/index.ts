@@ -30,7 +30,7 @@ try {
   }
 
   const stripe = new Stripe(stripeApiKey, {
-    apiVersion: '2025-09-30.clover', // API version atualizada
+    apiVersion: '2025-10-29.clover', // API version atualizada
     typescript: true,
   });
   console.log('✅ Stripe SDK inicializado com sucesso.');
