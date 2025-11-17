@@ -13,7 +13,7 @@ if (!stripeApiKey || !stripeWebhookSecret) {
 }
 
 const stripe = new Stripe(stripeApiKey, {
-  apiVersion: '2024-04-10', // Usando uma versão estável
+  apiVersion: '2025-10-29.clover', // Usando uma versão estável
   typescript: true,
 });
 
@@ -60,8 +60,8 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req: R
       const invoice = event.data.object as Stripe.Invoice;
       const customerId = invoice.customer as string;
       // Para assinaturas, o userId está na metadata da assinatura
-      if (typeof invoice.subscription === 'string') {
-        const subscription = await stripe.subscriptions.retrieve(invoice.subscription);
+      if (typeof invoice === 'string') {
+        const subscription = await stripe.subscriptions.retrieve(invoice);
         const userId = subscription.metadata.userId; // Assumindo que salvamos 'userId'
         if (userId) {
           await db.collection('users').doc(userId).update({ plan: 'PREMIUM', isPremium: true });
