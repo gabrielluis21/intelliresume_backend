@@ -1,10 +1,11 @@
 import { Router, Request, Response, NextFunction } from 'express';
+import { Session } from 'express-session';
 import passport from '../config/passport';
 
 const router = Router();
 
 // Extends the Express session object to include our custom redirectUrl
-interface CustomSession extends Express.Session {
+interface CustomSession extends Session {
   redirectUrl?: string;
 }
 
