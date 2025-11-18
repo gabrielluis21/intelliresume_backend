@@ -22,8 +22,8 @@ const FRONTEND_DASHBOARD_URL = process.env.FRONTEND_URL
   : 'http://localhost:3000/home';
 
 // Rota de sucesso para o fluxo web
-router.get('/success', (req: Request, res: Response) => {
-  res.redirect(`${FRONTEND_DASHBOARD_URL}?payment=success`);
+router.get('/success', async (req: Request, res: Response) => {
+    res.redirect(`${FRONTEND_DASHBOARD_URL}?payment=success`);
 });
 
 // Rota de cancelamento para o fluxo web
@@ -42,6 +42,7 @@ router.get('/cancel', verifyFirebaseToken, async (req: Request, res: Response) =
 // Webhook para receber todos os eventos do Stripe
 router.post('/webhook', express.raw({ type: 'application/json' }), async (req: Request, res: Response) => {
   const sig = req.headers['stripe-signature'];
+  const {planName} = req.body;
   if (!sig) {
     return res.status(400).send('Webhook Error: Signature not found.');
   }
@@ -64,8 +65,12 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req: R
         const subscription = await stripe.subscriptions.retrieve(invoice);
         const userId = subscription.metadata.userId; // Assumindo que salvamos 'userId'
         if (userId) {
-          await db.collection('users').doc(userId).update({ plan: 'PREMIUM', isPremium: true });
-          console.log(`Plano do usuário ${userId} atualizado para PREMIUM via assinatura.`);
+          await db.collection('users').doc(userId).update({ 
+            plan: planName, 
+            isPremium: planName === 'PREMIUM' ? true : false, 
+            isPro: planName === 'PRO' ? true : false 
+          });
+          console.log(`Plano do usuário ${userId} atualizado para ${planName} via assinatura.`);
         }
       }
       break;
@@ -77,8 +82,12 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req: R
         if (session.payment_status === 'paid') {
             const userId = session.metadata?.userId;
             if (userId) {
-                await db.collection('users').doc(userId).update({ plan: 'PREMIUM', isPremium: true });
-                console.log(`Plano do usuário ${userId} atualizado para PREMIUM via checkout.`);
+                await db.collection('users').doc(userId).update({ 
+            plan: planName, 
+            isPremium: planName === 'PREMIUM' ? true : false, 
+            isPro: planName === 'PRO' ? true : false 
+          });
+                console.log(`Plano do usuário ${userId} atualizado para ${planName} via checkout.`);
             }
         }
         break;

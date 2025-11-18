@@ -68,7 +68,7 @@ try {
 
   // Endpoint para o App Mobile (PaymentSheet)
   app.post('/api/create-payment-intent', verifyFirebaseToken, async (req: Request, res: Response) => {
-    const { priceId } = req.body; // 4. Recebe o priceId do frontend
+    const { priceId, planName} = req.body; // 4. Recebe o priceId do frontend
     const user = (req as any).user;
     
     if (!priceId) {
@@ -91,7 +91,7 @@ try {
 
       const ephemeralKey = await stripe.ephemeralKeys.create(
         { customer: stripeCustomerId },
-        { apiVersion: '2024-04-10' }
+        { apiVersion: '2025-10-29.clover' }
       );
 
       const subscription = await stripe.subscriptions.create({
@@ -100,7 +100,7 @@ try {
           payment_behavior: 'default_incomplete',
           payment_settings: { save_default_payment_method: 'on_subscription' },
           expand: ['latest_invoice.payment_intent'],
-          metadata: { userId: user.uid } // Salva o userId para o webhook
+          metadata: { userId: user.uid, planName: planName } // Salva o userId para o webhook
       });
       
       const latestInvoice = subscription.latest_invoice;
@@ -125,7 +125,7 @@ try {
 
   // Endpoint para a Aplicação Web (Stripe Checkout)
   app.post('/api/create-checkout-session', verifyFirebaseToken, async (req: Request, res: Response) => {
-    const { priceId } = req.body; // 5. Recebe o priceId do frontend
+    const { priceId, plano } = req.body; // 5. Recebe o priceId do frontend
     const user = (req as any).user;
 
     if (!priceId) {
@@ -144,7 +144,8 @@ try {
         success_url: `${backendUrl}/api/payment/success`, 
         cancel_url: `${backendUrl}/api/payment/cancel`,
         metadata: { 
-          userId: user.uid // Salva o userId para o webhook
+          userId: user.uid, // Salva o userId para o webhook
+          planName: plano  // Salva o Plano para o Firebase
         }
       });
 
